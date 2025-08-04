@@ -1,0 +1,7 @@
+__pycache__/
+Test/
+Train/
+venv/
+traffic_classifier.h5
+Train.csv
+Test.csv

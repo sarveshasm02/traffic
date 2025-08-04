@@ -1,0 +1,11 @@
+tensorflow==2.14.1
+keras==2.14.0
+numpy==1.23.5
+ml-dtypes==0.2.0
+tensorboard==2.14.0
+pandas
+matplotlib
+opencv-python
+scikit-learn
+pillow
+tk
