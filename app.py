@@ -1,23 +1,14 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import pickle
 import numpy as np
 from PIL import Image
-import io
+from keras.models import load_model
+import os
 
+# Load the Keras model from .h5 file
+model = load_model('traffic_classifier.h5')
 
-class KerasModelWrapper:
-    def __init__(self, model):
-        self.model = model
-    def predict(self, X):
-        return self.model.predict(X)
-
-# Load the pickled model
-with open('traffic_classifier.pkl', 'rb') as f:
-    model_wrapper = pickle.load(f)
-
-# Class labels (shortened for brevity, use your full dict in production)
-classes = classes = {
+classes = {
     0: ('Speed limit (20km/h)', 'Reduce your speed to 20 km/h.'),
     1: ('Speed limit (30km/h)', 'Reduce your speed to 30 km/h.'),
     2: ('Speed limit (50km/h)', 'Reduce your speed to 50 km/h.'),
@@ -63,7 +54,6 @@ classes = classes = {
     42: ('End no passing vehicle with a weight greater than 3.5 tons', 'You may overtake vehicles over 3.5 tons if safe to do so.')
 }
 
-
 app = Flask(__name__)
 CORS(app)
 
@@ -79,7 +69,7 @@ def predict():
         if image.shape[-1] == 4:  # RGBA to RGB
             image = image[..., :3]
         image = np.expand_dims(image, axis=0)
-        pred = model_wrapper.predict(image)
+        pred = model.predict(image)
         pred_class = int(np.argmax(pred, axis=1)[0])
         label = classes.get(pred_class, "Unknown")
         return jsonify({'prediction': label, 'class_id': pred_class})
@@ -87,4 +77,5 @@ def predict():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True, host="0.0.0.0", port=port)
